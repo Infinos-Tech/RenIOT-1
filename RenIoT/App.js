@@ -8,12 +8,12 @@ import SignUpScreen from './components/SignUpScreen';
 import BoxSignUpScreen from './components/BoxSignUpScreen';
 import BoxLoginScreen from './components/BoxLoginScreen';
 import ForgotPasswordScreen from './components/ForgotPasswordScreen';
+import OtpValidationScreen from './components/OtpValidationScreen'
 import RenIoT from './components/RenIoT';
 
 const Stack = createStackNavigator();
 
 export default class App extends React.Component{
-  
   render(){
     return(
       <View style= {styles.container}>
@@ -26,6 +26,7 @@ export default class App extends React.Component{
             <Stack.Screen name="BoxSignUp" component={BoxSignUpScreen} />
             <Stack.Screen name="BoxLogin" component={BoxLoginScreen} />
             <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+            <Stack.Screen name="OtpValidationScreen" component={OtpValidationScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       </View>

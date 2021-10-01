@@ -71,6 +71,18 @@ class Board(db.Model, UserMixin):
     boardpassword = db.Column('boardPassword', db.String(33))
 
 
+class WeatherData(db.Model, UserMixin):
+    __tablename__ = 'weatherData'
+    tempreature = db.Column('Tempreature', db.String(40))
+    location = db.Column('Location', db.String(40))
+    weatherdata = db.Column('weatherdata', db.String(40))
+
+    def __init__(self, tempreature, location, weatherdata):
+        self.tempreature = tempreature
+        self.location = location
+        self.weatherdata = weatherdata
+
+
 # db.create_all()
 
 
@@ -146,15 +158,15 @@ def signup():
     return render_template('signup.html', form=form)
 
 
-@app.route('/userSignUp', methods=["POST"])
-def UserSignUp():
-    if request.method == 'POST':
-        data = request.get_json()
-        print(data['username'])
-        print(data['password'])
-        print(data['email'])
-        print(data['phoneno'])
-        return jsonify({"message": "signup"}), 200
+# @app.route('/userSignUp', methods=["POST"])
+# def UserSignUp():
+#     if request.method == 'POST':
+#         data = request.get_json()
+#         print(data['username'])
+#         print(data['password'])
+#         print(data['email'])
+#         print(data['phoneno'])
+#         return jsonify({"message": "signup"}), 200
 
 
 @app.route('/board', methods=["GET", "POST"])
@@ -230,6 +242,64 @@ def Password_Update():
         return render_template("pw.html")
 
 
+@app.route('/userSignUp', methods=["POST"])
+def UserSignUp():
+    if request.method == 'POST':
+        data = request.get_json()
+        up = hashlib.md5(data['password'].encode())
+        newUser = Useruthentication(username=data['username'],
+                                    phno=data['phoneno'],
+                                    mailid=data['email'],
+                                    userpassword=up.hexdigest(),
+                                    rectym=datetime.now())
+        db.session.add(newUser)
+        db.session.commit()
+        return jsonify({"message": "signup"}), 200
+
+
+@app.route('/GetOtp', methods=['POST'])
+def GetOtp():
+    if request.method == 'POST':
+        data = request.get_json()
+        result = Useruthentication.query.filter_by(mailid=data['email']).first()
+        if result is not None:
+            session["user"] = data['email']
+            msg = Message('OTP', sender='nreply760@gmail.com', recipients=[result.mailid])
+            msg.body = f"Hello {result.username} a request has been recieved to change the password for your Account your secret otp is \n {str(otp)}"
+            mail.send(msg)
+            return jsonify({"message": "GetOtp"}), 200
+
+
+@app.route('/OTP_validation', methods=['POST'])
+def OTP_validation():
+    if g.user:
+        if request.method == "POST":
+            data = request.get_json()
+            if data['otp'] == str(otp):
+                return jsonify({"message": "otp"}), 200
+
+
+@app.route('/Reset_Password', methods=['POST'])
+def Reset_Password():
+    if g.user:
+        if request.method == "POST":
+            data = request.get_json()
+            ps = hashlib.md5(data['password'].encode())
+            ps2 = hashlib.md5(data['password2'].encode())
+            if ps.hexdigest() == ps2.hexdigest():
+                Passwordupdate = Useruthentication.query.filter_by(mailid=g.user).first()
+                Passwordupdate.userpassword = ps2.hexdigest()
+                db.session.add(Passwordupdate)
+                db.session.commit()
+                return jsonify({"message": 'Reset_Password'}), 200
+
+
+# Created an temporary app route to display the WeatherData which get accessed from the weather table
+@app.route('/weather', methods=['GET'])
+def getWeatherData():
+    return render_template("weather.html", wdata=WeatherData.query.all())
+
+
 @app.before_request
 def before_request():
     g.user = None
@@ -238,4 +308,4 @@ def before_request():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5000)

@@ -1,0 +1,154 @@
+import React, { useState, useRef } from 'react'
+import { View, Text, Button, StyleSheet, KeyboardAvoidingView, TextInput, TouchableOpacityBase } from 'react-native'
+import { TextInput } from 'react-native-gesture-handler'
+
+export function OtpValidationScreen({ navigation }) {
+
+    let textInput = useRef(null)
+    const lengthInput = 6;
+    const defaultCountdown = 30;
+    const [internalVal, setInternalVal] = useState("")
+    const [countDown, setCountdown] = useState(defaultCountdown)
+    const [enableResend, setEnableResend] = useState(false)
+
+    useEffect(() => {
+        this.clockCall = setInternal(() => {
+            decrementClock();
+        }, [1000])
+        return () => {
+            clearInterval(this.clockCall)
+        }
+    }, [])
+
+    const decrementClock = () => {
+        if (countDown === 0) {
+            setEnableResend(true)
+            setCountdown(0)
+            clearInterval(this.clockCall)
+        }
+        else {
+            setCountdown(countDown - 1)
+        }
+
+    }
+
+    const onChangeText = (val) => {
+        setInternalVal(val)
+    }
+
+    useEffect(() => {
+        textInput.focus()
+    }, [])
+
+    return (
+        <View style={styles.container}>
+            <KeyboardAvoidingView
+                keyboardVerticalOffset={50}
+                behavior={'padding'}
+                styel={styles.containerAvoidingview}
+            >
+                <Text style={styles.textTitle}>
+                    {"Please enter the OTP for verification"}
+                </Text>
+                <View style={styles.containerInput}>
+                    <TextInput
+                        ref={(input) => textInput = input}
+                        onChangeText={onChangeText}
+                        style={{ width: 0, height: 0 }}
+                        value={internalVal}
+                        maxLength={lengthInput}
+                        returnKeyType="done"
+                        keyboardType="numeric"
+                    />
+                    <View style={styles.containerInput}>
+                        {
+                            Array(lengthInput.fill().map(data, index) = (
+                                <View
+                                    key={index}
+                                    style={[
+                                        styles.cellView,
+                                        {
+                                            borderBottomColor= index === internalVal.length ? '#FB6C6A' : '#234DB7'
+                                        }
+                                    ]}
+                                >
+                                    <Text
+                                        style={styles.cellText}
+                                        onPress={() => textInput.focus()}
+                                    >
+                                        {intervalVal && intervalVal.length > 0 ? intervalVal[index] : ""}
+                                    </Text>
+                                </View>
+                            ))
+                        }
+                    </View>
+                </View>
+
+                <View style={styles.bottomView}>
+                    <TouchableOpacity>
+                        <View style={styles.btnResend}>
+                            <Text style={[
+                                styles.textResend,
+                                {
+                                    color: enableResend ? '#234DB7' : 'gray'
+                                }
+                            ]}>
+                                Resend OTP ({countDown})
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+
+            </KeyboardAvoidingView>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1
+    },
+    containerAvoidingview: {
+        flex: 1,
+        alignItems: 'center',
+        padding: 10
+    },
+    textTitle: {
+        marginBottom: 50,
+        marginTop: 50,
+        fontSize: 16
+    },
+    containerInput: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    cellView: {
+        width: 40, margin: 5,
+        justifyContent: 'center',
+        paddingVertical: 11,
+        alignItems: 'center',
+        borderBottomWidth: 1.5
+    },
+    cellText: {
+        alignItems: 'center',
+        fontSize: 16
+    },
+    bottomView: {
+        flexDirection: 'row',
+        flex: 1,
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        marginBottom: 50
+    },
+    btnResend: {
+        width: 150, margin: 50,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    textResend: {
+        alignItems: 'center',
+        fontSize: 16
+    }
+})
